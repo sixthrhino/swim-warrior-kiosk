@@ -1,0 +1,51 @@
+name: Swim Warrior Kiosk CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+
+jobs:
+  deploy-portal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@main
+
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: Build
+        run: npm run build
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload to blob storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name stsixthrhinokiosk --overwrite true --auth-mode key -d '$web' -s ./dist
+
+      - name: Purge CDN endpoint
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az afd endpoint purge -g "rg-swimwarrior" --endpoint-name "kioskswimwarrior" --profile-name "cdn-swim-warrior-kiosk" --domains "kiosk.swimwarrior.com" --content-paths '/*'
+
+      # Azure logout
+      - name: logout
+        run: |
+          az logout
+        if: always()
