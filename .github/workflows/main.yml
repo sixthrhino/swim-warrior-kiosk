@@ -42,7 +42,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az afd endpoint purge -g "rg-swimwarrior" --endpoint-name "kioskswimwarrior" --profile-name "cdn-swim-warrior-kiosk" --domains "kiosk.swimwarrior.com" --content-paths '/*'
+            az afd endpoint purge -g "rg-swimwarrior" --endpoint-name "kiosk-swimwarrior" --profile-name "cdn-swim-warrior-kiosk" --domains "kiosk.swimwarrior.com" --content-paths '/*'
 
       # Azure logout
       - name: logout
