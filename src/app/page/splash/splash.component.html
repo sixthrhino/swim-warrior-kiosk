@@ -1,0 +1,18 @@
+<script>
+
+  // Enable pusher logging - don't include this in production
+  Pusher.logToConsole = true;
+
+  var pusher = new Pusher('37080ec0eda1c3216f5b', {
+    cluster: 'us3'
+  });
+
+  var channel = pusher.subscribe('kiosk');
+  channel.bind('new-time', function(data) {
+    alert(JSON.stringify(data));
+  });
+</script>
+<div *ngIf="showSplash" class="splash-logo" [ngStyle]="{'opacity': opacityChange, 'transition': splashTransition}" >
+  <img src="/assets/img/warrior_logo_600px.png">
+</div>
+
